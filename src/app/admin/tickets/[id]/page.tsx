@@ -10,17 +10,17 @@ import StatusBadge from '@/components/ui/StatusBadge';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import Pagination from '@/components/ui/Pagination';
 import { formatDateTime, formatMinutes } from '@/lib/utils/format';
-import { 
-  ArrowLeft, 
-  Send, 
-  Mail, 
-  MessageSquare, 
-  Calendar, 
-  Settings, 
-  MapPin, 
-  User, 
-  Clock, 
-  CheckCircle2, 
+import {
+  ArrowLeft,
+  Send,
+  Mail,
+  MessageSquare,
+  Calendar,
+  Settings,
+  MapPin,
+  User,
+  Clock,
+  CheckCircle2,
   XCircle,
   AlertCircle,
   Image as ImageIcon
@@ -119,9 +119,8 @@ export default function AdminTicketDetail() {
 
           <button
             onClick={() => setShowNotificationForm(!showNotificationForm)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black uppercase text-xs transition-all shadow-lg ${
-              showNotificationForm ? 'bg-slate-800 text-white' : 'bg-corporate-blue text-white shadow-blue-200'
-            }`}
+            className={`flex items-center gap-2 px-6 py-3 rounded-2xl font-black uppercase text-xs transition-all shadow-lg ${showNotificationForm ? 'bg-slate-800 text-white' : 'bg-corporate-blue text-white shadow-blue-200'
+              }`}
           >
             <Send size={16} /> {showNotificationForm ? 'Close Messenger' : 'Notify Owner'}
           </button>
@@ -137,7 +136,7 @@ export default function AdminTicketDetail() {
                   <MessageSquare size={20} />
                   <h3 className="text-sm font-black uppercase tracking-widest">Customer Correspondence</h3>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Email Destination</p>
@@ -190,7 +189,7 @@ export default function AdminTicketDetail() {
                   </div>
 
                   <button
-                    onClick={() => {}} // handleSendNotification logic
+                    onClick={() => { }} // handleSendNotification logic
                     disabled={sendingNotification || (!sendEmail && !sendWhatsApp)}
                     className="px-8 py-3 bg-corporate-blue text-white rounded-xl font-black uppercase text-[10px] tracking-[0.2em] shadow-lg shadow-blue-100 disabled:opacity-50"
                   >
@@ -215,7 +214,7 @@ export default function AdminTicketDetail() {
                         <CheckCircle2 size={32} className="text-emerald-100" />
                       </div>
                     )}
-                    
+
                     <div className="flex flex-col md:flex-row justify-between gap-6 mb-8">
                       <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-2xl bg-slate-100 flex items-center justify-center font-black text-slate-400">
@@ -316,92 +315,93 @@ export default function AdminTicketDetail() {
           </div>
 
           {/* Sidebar Info Column */}
-<div className="space-y-8">
-  <Card className="border-none shadow-2xl rounded-[2.5rem] bg-[#030b1f] text-white overflow-hidden relative">
-    {/* Decorative Technical Grid Background */}
-    <div className="absolute inset-0 opacity-10"
-         style={{ backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
-    
-    <div className="relative z-10 p-8">
-      <div className="flex items-center justify-between mb-8">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-corporate-blue">Technical Audit</h3>
-        <div className="h-2 w-2 rounded-full bg-corporate-blue animate-pulse" />
-      </div>
-      
-      <div className="space-y-8">
-        {/* Asset Details */}
-        <div className="group">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-            <Settings size={12} className="text-corporate-blue" /> Machine Specs
-          </p>
-          <div className="pl-5 border-l border-slate-800 group-hover:border-corporate-blue transition-colors">
-            <p className="font-black text-sm uppercase leading-tight">{ticket.generator.name}</p>
-            <p className="text-xs font-bold text-slate-400 mt-1 italic">{ticket.generator.model}</p>
-          </div>
-        </div>
+          <div className="space-y-8">
+            <Card className="border border-slate-200 shadow-xl rounded-[2.5rem] bg-slate-50 text-slate-900 overflow-hidden relative">
+              {/* Decorative Technical Grid Background - Lightened for visibility */}
+              <div className="absolute inset-0 opacity-[0.15]"
+                style={{ backgroundImage: 'radial-gradient(#64748b 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
 
-        {/* Location Details */}
-        <div className="group">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-            <MapPin size={12} className="text-corporate-blue" /> Deployment Site
-          </p>
-          <div className="pl-5 border-l border-slate-800 group-hover:border-corporate-blue transition-colors">
-            <p className="font-black text-sm uppercase leading-tight tracking-tight">
-              {ticket.generator.locationName}
-            </p>
-          </div>
-        </div>
+              <div className="relative z-10 p-8">
+                <div className="flex items-center justify-between mb-8">
+                  {/* Primary accent changed to a bold Indigo */}
+                  <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-600">Technical Audit</h3>
+                  <div className="h-2 w-2 rounded-full bg-indigo-500 animate-pulse" />
+                </div>
 
-        {/* Schedule */}
-        <div className="group">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-            <Calendar size={12} className="text-corporate-blue" /> Ops Window
-          </p>
-          <div className="pl-5 border-l border-slate-800 group-hover:border-corporate-blue transition-colors">
-            <p className="font-black text-sm uppercase tracking-widest">
-              {ticket.scheduledDate} <span className="text-corporate-blue mx-1">@</span> {ticket.scheduledTime}
-            </p>
-          </div>
-        </div>
+                <div className="space-y-8">
+                  {/* Asset Details */}
+                  <div className="group">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <Settings size={12} className="text-indigo-500" /> Machine Specs
+                    </p>
+                    <div className="pl-5 border-l border-slate-200 group-hover:border-indigo-500 transition-colors">
+                      <p className="font-black text-sm uppercase leading-tight text-slate-800">{ticket.generator.name}</p>
+                      <p className="text-xs font-bold text-slate-500 mt-1 italic">{ticket.generator.model}</p>
+                    </div>
+                  </div>
 
-        {/* Complexity Weight (Stars) */}
-        <div className="group">
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-2">
-            <AlertCircle size={12} className="text-corporate-blue" /> Complexity Weight
-          </p>
-          <div className="pl-5 border-l border-slate-800 group-hover:border-corporate-blue transition-colors">
-            <div className="flex gap-1.5 items-center">
-              {[...Array(5)].map((_, i) => (
-                <svg
-                  key={i}
-                  className={`w-4 h-4 ${i < ticket.weight ? 'text-yellow-400' : 'text-slate-700'}`}
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.364 1.118l1.286 3.97c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.286-3.97a1 1 0 00-.364-1.118L2.05 9.397c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.97z" />
-                </svg>
-              ))}
-              <span className="ml-2 text-[10px] font-black text-slate-600">LVL {ticket.weight}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+                  {/* Location Details */}
+                  <div className="group">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <MapPin size={12} className="text-indigo-500" /> Deployment Site
+                    </p>
+                    <div className="pl-5 border-l border-slate-200 group-hover:border-indigo-500 transition-colors">
+                      <p className="font-black text-sm uppercase leading-tight tracking-tight text-slate-800">
+                        {ticket.generator.locationName}
+                      </p>
+                    </div>
+                  </div>
 
-      {/* Internal Briefing Section */}
-      <div className="mt-12 p-5 bg-slate-800/40 rounded-3xl border border-slate-800 group hover:border-slate-700 transition-all">
-        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3">Service Briefing</p>
-        <p className="text-xs italic font-medium text-slate-400 leading-relaxed group-hover:text-slate-200 transition-colors">
-          "{ticket.description || 'No specific instructions provided for this maintenance cycle.'}"
-        </p>
-      </div>
-    </div>
-  </Card>
-</div>
+                  {/* Schedule */}
+                  <div className="group">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <Calendar size={12} className="text-indigo-500" /> Ops Window
+                    </p>
+                    <div className="pl-5 border-l border-slate-200 group-hover:border-indigo-500 transition-colors">
+                      <p className="font-black text-sm uppercase tracking-widest text-slate-800">
+                        {ticket.scheduledDate} <span className="text-indigo-500 mx-1">@</span> {ticket.scheduledTime}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Complexity Weight (Stars) */}
+                  <div className="group">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                      <AlertCircle size={12} className="text-indigo-500" /> Complexity Weight
+                    </p>
+                    <div className="pl-5 border-l border-slate-200 group-hover:border-indigo-500 transition-colors">
+                      <div className="flex gap-1.5 items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <svg
+                            key={i}
+                            className={`w-4 h-4 ${i < ticket.weight ? 'text-amber-500' : 'text-slate-200'}`}
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.18c.969 0 1.371 1.24.588 1.81l-3.388 2.46a1 1 0 00-.364 1.118l1.286 3.97c.3.921-.755 1.688-1.54 1.118l-3.388-2.46a1 1 0 00-1.175 0l-3.388 2.46c-.784.57-1.838-.197-1.539-1.118l1.286-3.97a1 1 0 00-.364-1.118L2.05 9.397c-.783-.57-.38-1.81.588-1.81h4.18a1 1 0 00.95-.69l1.286-3.97z" />
+                          </svg>
+                        ))}
+                        <span className="ml-2 text-[10px] font-black text-slate-400">LVL {ticket.weight}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Internal Briefing Section - Adjusted for light background */}
+                <div className="mt-12 p-5 bg-white rounded-3xl border border-slate-200 shadow-sm group hover:border-indigo-200 transition-all">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Service Briefing</p>
+                  <p className="text-xs italic font-medium text-slate-600 leading-relaxed group-hover:text-slate-900 transition-colors">
+                    "{ticket.description || 'No specific instructions provided for this maintenance cycle.'}"
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </div>
         </div>
 
         {miniJobs && miniJobs.totalPages > 1 && (
           <div className="flex justify-center mt-8">
-             <Pagination
+            <Pagination
               currentPage={currentPage}
               totalPages={miniJobs.totalPages}
               onPageChange={loadMiniJobs}
