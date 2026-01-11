@@ -317,7 +317,7 @@ export default function AdminTicketDetail() {
 
           {/* Sidebar Info Column */}
 <div className="space-y-8">
-  <Card className="border-none shadow-2xl rounded-[2.5rem] bg-[#0F172A] text-white overflow-hidden relative">
+  <Card className="border-none shadow-2xl rounded-[2.5rem] bg-[#030b1f] text-white overflow-hidden relative">
     {/* Decorative Technical Grid Background */}
     <div className="absolute inset-0 opacity-10"
          style={{ backgroundImage: 'radial-gradient(#334155 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
