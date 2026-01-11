@@ -152,6 +152,22 @@ export default function AdminTickets() {
   }, [modalGeneratorSearch]);
 
   useEffect(() => {
+    if (showModal) {
+      // Load all employees when modal opens
+      loadAllEmployees();
+    }
+  }, [showModal]);
+
+  const loadAllEmployees = async () => {
+    try {
+      const data = await userService.getEmployees({ page: 0, size: 100, activeOnly: true });
+      setModalEmployees(data.content);
+    } catch (err) {
+      console.error('Error loading employees:', err);
+    }
+  };
+
+  useEffect(() => {
     if (modalEmployeeSearch.length >= 3) {
       const delay = setTimeout(async () => {
         try {
@@ -161,6 +177,9 @@ export default function AdminTickets() {
         } catch (err) { console.error(err); }
       }, 300);
       return () => clearTimeout(delay);
+    } else if (modalEmployeeSearch.length === 0 && showModal) {
+      // Reload all employees when search is cleared
+      loadAllEmployees();
     }
   }, [modalEmployeeSearch]);
 
@@ -271,7 +290,7 @@ export default function AdminTickets() {
                 <Calendar size={16} className="text-corporate-blue" /> Schedule Date
               </label>
               <div className="flex gap-2">
-                <input type="date" value={selectedDate} onChange={(e) => { setSelectedDate(e.target.value); setCurrentPage(0); }} className="flex-1 bg-slate-50 border-none rounded-xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-corporate-blue" />
+                <input type="date" value={selectedDate} onChange={(e) => { setSelectedDate(e.target.value); setCurrentPage(0); }} className="flex-1 bg-slate-50 border-2 border-corporate-blue rounded-xl py-3 px-4 text-sm font-bold text-slate-700 focus:ring-2 focus:ring-corporate-blue" />
                 <button
                   onClick={handleTodayFilter}
                   className="bg-slate-900 text-white px-6 py-3 rounded-xl text-xs font-black uppercase hover:bg-corporate-blue transition-colors active:scale-95 whitespace-nowrap"
@@ -285,14 +304,14 @@ export default function AdminTickets() {
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                 <Search size={16} className="text-corporate-blue" /> Asset Search
               </label>
-              <input type="text" value={generatorSearchTerm} onChange={(e) => { setGeneratorSearchTerm(e.target.value); setCurrentPage(0); }} placeholder="Generator name..." className="bg-slate-50 border-none rounded-xl py-3 px-4 text-sm font-bold text-slate-700 w-full focus:ring-2 focus:ring-corporate-blue shadow-inner" />
+              <input type="text" value={generatorSearchTerm} onChange={(e) => { setGeneratorSearchTerm(e.target.value); setCurrentPage(0); }} placeholder="Generator name..." className="bg-slate-50 border-2 border-corporate-blue rounded-xl py-3 px-4 text-sm font-bold text-slate-700 w-full focus:ring-2 focus:ring-corporate-blue shadow-inner" />
             </div>
 
             <div className="space-y-3">
               <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                 <UserIcon size={16} className="text-corporate-blue" /> Team Filter
               </label>
-              <select value={employeeFilter} onChange={(e) => { setEmployeeFilter(e.target.value === 'ALL' ? 'ALL' : parseInt(e.target.value)); setCurrentPage(0); }} className="bg-slate-50 border-none rounded-xl py-3 px-4 text-sm font-bold text-slate-700 w-full focus:ring-2 focus:ring-corporate-blue appearance-none">
+              <select value={employeeFilter} onChange={(e) => { setEmployeeFilter(e.target.value === 'ALL' ? 'ALL' : parseInt(e.target.value)); setCurrentPage(0); }} className="bg-slate-50 border-2 border-corporate-blue rounded-xl py-3 px-4 text-sm font-bold text-slate-700 w-full focus:ring-2 focus:ring-corporate-blue appearance-none">
                 <option value="ALL">All Personnel</option>
                 {employees.map((emp) => <option key={emp.id} value={emp.id}>{emp.fullName}</option>)}
               </select>
@@ -376,157 +395,187 @@ export default function AdminTickets() {
       {/* --- MODAL --- */}
       {showModal && (
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20">
+          <div className="bg-white rounded-[3rem] shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col border border-white/20">
             <div className="p-10 border-b border-slate-50 flex justify-between items-center bg-slate-50/50">
               <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tighter">{editMode ? 'Modify Dispatch' : 'New Dispatch'}</h3>
               <button onClick={() => setShowModal(false)} className="p-3 hover:bg-white rounded-2xl transition-colors shadow-sm"><X size={24} /></button>
             </div>
             
-            <form onSubmit={handleSubmit} className="p-10 overflow-y-auto space-y-8">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                 <div className="space-y-3">
-                   <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Job Title *</label>
-                   <input required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue" />
-                 </div>
-                 <div className="space-y-3">
-                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Type</label>
-                    <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value as JobCardType })} className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue">
-                      {Object.values(JobCardType).map((type) => <option key={type} value={type}>{type}</option>)}
-                    </select>
-                 </div>
-               </div>
-
-               <div className="space-y-3">
-                 <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Job Description</label>
-                 <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue" rows={3} />
-               </div>
-
-               <div className="relative space-y-3">
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Primary Asset (Generator) *</label>
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input
-                      type="text"
-                      placeholder={selectedGenerator ? `Selected: ${selectedGenerator.name}` : "Search Asset Name..."}
-                      value={showGeneratorDropdown ? modalGeneratorSearch : (selectedGenerator?.name || "")}
-                      onFocus={() => { setShowGeneratorDropdown(true); setModalGeneratorSearch(""); }}
-                      onChange={(e) => setModalGeneratorSearch(e.target.value)}
-                      className="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue"
-                    />
-                  </div>
-                  {showGeneratorDropdown && modalGeneratorSearch.length >= 3 && (
-                    <div className="absolute z-[110] w-full mt-2 bg-white border border-slate-100 rounded-2xl shadow-2xl max-h-56 overflow-y-auto p-3">
-                      {modalGenerators.map((gen) => (
-                        <div key={gen.id} onClick={() => { setSelectedGenerator(gen); setFormData({ ...formData, generatorId: gen.id }); setShowGeneratorDropdown(false); }} className="p-4 hover:bg-corporate-blue/5 rounded-2xl cursor-pointer border-b border-slate-50 last:border-0">
-                          <div className="font-black text-sm text-slate-900 uppercase">{gen.name}</div>
-                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{gen.locationName}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-               </div>
-
-               <div className="grid grid-cols-3 gap-6">
-                  <div className="space-y-3"><label className="text-xs font-black text-slate-500 uppercase tracking-widest">Priority</label><input type="number" min="1" max="5" required value={formData.weight} onChange={(e) => setFormData({ ...formData, weight: parseInt(e.target.value) })} className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold" /></div>
-                  <div className="space-y-3"><label className="text-xs font-black text-slate-500 uppercase tracking-widest">Date</label><input type="date" required value={formData.scheduledDate} onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })} className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold" /></div>
-                  <div className="space-y-3"><label className="text-xs font-black text-slate-500 uppercase tracking-widest">Time</label><input type="time" required value={formData.scheduledTime.substring(0, 5)} onChange={(e) => setFormData({ ...formData, scheduledTime: e.target.value + ':00' })} className="w-full bg-slate-50 border-none rounded-2xl p-4 text-sm font-bold" /></div>
-               </div>
-
-               <div className="space-y-4">
-                  <label className="text-xs font-black text-slate-500 uppercase tracking-widest flex justify-between">
-                    <span>Personnel Assignment (Min 1, Max 5) *</span>
-                    <span className={`px-3 py-1 rounded-lg text-xs font-black ${formData.employeeIds.length === 0 ? 'bg-red-50 text-red-600' : 'bg-corporate-blue/10 text-corporate-blue'}`}>
-                      {formData.employeeIds.length}/5 Selected
-                    </span>
-                  </label>
+            <form onSubmit={handleSubmit} className="p-10 overflow-y-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                {/* LEFT COLUMN - Ticket Details */}
+                <div className="space-y-8">
+                  <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight border-b-2 border-corporate-blue pb-3">Dispatch Details</h4>
                   
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <input 
-                      type="text" 
-                      value={modalEmployeeSearch} 
-                      onChange={(e) => setModalEmployeeSearch(e.target.value)} 
-                      placeholder="Search team members by name..." 
-                      className="w-full bg-slate-50 border-none rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue"
-                    />
+                  <div className="grid grid-cols-1 gap-6">
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Job Title *</label>
+                      <input required value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className="w-full bg-slate-50 border-2 border-corporate-blue rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue focus:border-corporate-blue" placeholder="Enter job title..." />
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Type</label>
+                      <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value as JobCardType })} className="w-full bg-slate-50 border-2 border-corporate-blue rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue focus:border-corporate-blue">
+                        {Object.values(JobCardType).map((type) => <option key={type} value={type}>{type}</option>)}
+                      </select>
+                    </div>
                   </div>
 
-                  {formData.employeeIds.length === 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-center gap-3">
-                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <UserIcon size={16} className="text-red-600" />
+                  <div className="space-y-3">
+                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Job Description</label>
+                    <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className="w-full bg-slate-50 border-2 border-corporate-blue rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue focus:border-corporate-blue resize-none" rows={3} placeholder="Enter job description..." />
+                  </div>
+
+                  <div className="relative space-y-3">
+                    <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Primary Asset (Generator) *</label>
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input
+                        type="text"
+                        placeholder={selectedGenerator ? `Selected: ${selectedGenerator.name}` : "Search Asset Name..."}
+                        value={showGeneratorDropdown ? modalGeneratorSearch : (selectedGenerator?.name || "")}
+                        onFocus={() => { setShowGeneratorDropdown(true); setModalGeneratorSearch(""); }}
+                        onChange={(e) => setModalGeneratorSearch(e.target.value)}
+                        className="w-full bg-slate-50 border-2 border-corporate-blue rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue focus:border-corporate-blue"
+                      />
+                    </div>
+                    {showGeneratorDropdown && modalGeneratorSearch.length >= 3 && (
+                      <div className="absolute z-[110] w-full mt-2 bg-white border-2 border-corporate-blue rounded-2xl shadow-2xl max-h-56 overflow-y-auto p-3">
+                        {modalGenerators.length > 0 ? (
+                          modalGenerators.map((gen) => (
+                            <div key={gen.id} onClick={() => { setSelectedGenerator(gen); setFormData({ ...formData, generatorId: gen.id }); setShowGeneratorDropdown(false); }} className="p-4 hover:bg-corporate-blue/5 rounded-2xl cursor-pointer border-b border-slate-50 last:border-0">
+                              <div className="font-black text-sm text-slate-900 uppercase">{gen.name}</div>
+                              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{gen.locationName}</div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-4 text-xs font-bold text-slate-400">No generators found</div>
+                        )}
                       </div>
-                      <p className="text-xs font-bold text-red-600">At least one team member must be assigned</p>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Priority</label>
+                      <input type="number" min="1" max="5" required value={formData.weight} onChange={(e) => setFormData({ ...formData, weight: parseInt(e.target.value) })} className="w-full bg-slate-50 border-2 border-corporate-blue rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue focus:border-corporate-blue" />
                     </div>
-                  )}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto p-4 bg-slate-50 rounded-[2rem] border border-slate-100">
-                    {modalEmployeeSearch.length >= 3 ? (
-                      // Show search results
-                      modalEmployees.length > 0 ? (
-                        modalEmployees.map((emp) => (
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Date</label>
+                      <input type="date" required value={formData.scheduledDate} onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })} className="w-full bg-slate-50 border-2 border-corporate-blue rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue focus:border-corporate-blue" />
+                    </div>
+                    <div className="space-y-3">
+                      <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Time</label>
+                      <input type="time" required value={formData.scheduledTime.substring(0, 5)} onChange={(e) => setFormData({ ...formData, scheduledTime: e.target.value + ':00' })} className="w-full bg-slate-50 border-2 border-corporate-blue rounded-2xl p-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue focus:border-corporate-blue" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN - Personnel Assignment */}
+                <div className="space-y-6 lg:border-l-2 lg:border-slate-100 lg:pl-10">
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <h4 className="text-lg font-black text-slate-900 uppercase tracking-tight">Personnel Assignment</h4>
+                      <span className={`px-3 py-1 rounded-lg text-xs font-black ${formData.employeeIds.length === 0 ? 'bg-red-50 text-red-600' : 'bg-corporate-blue/10 text-corporate-blue'}`}>
+                        {formData.employeeIds.length}/5 Selected
+                      </span>
+                    </div>
+                    
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                      <input 
+                        type="text" 
+                        value={modalEmployeeSearch} 
+                        onChange={(e) => setModalEmployeeSearch(e.target.value)} 
+                        placeholder="Search team members..." 
+                        className="w-full bg-slate-50 border-2 border-corporate-blue rounded-2xl pl-12 pr-6 py-4 text-sm font-bold focus:ring-2 focus:ring-corporate-blue focus:border-corporate-blue"
+                      />
+                    </div>
+
+                    {formData.employeeIds.length === 0 && (
+                      <div className="bg-red-50 border-2 border-red-200 rounded-2xl p-4 flex items-center gap-3">
+                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <UserIcon size={16} className="text-red-600" />
+                        </div>
+                        <p className="text-xs font-bold text-red-600">At least one team member must be assigned</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Employee List */}
+                  <div className="space-y-3 max-h-[calc(90vh-400px)] overflow-y-auto pr-2">
+                    {(() => {
+                      const displayEmployees = modalEmployeeSearch.trim().length > 0
+                        ? modalEmployees.filter(emp => 
+                            emp.fullName.toLowerCase().includes(modalEmployeeSearch.toLowerCase()) ||
+                            emp.username.toLowerCase().includes(modalEmployeeSearch.toLowerCase())
+                          )
+                        : modalEmployees;
+
+                      return displayEmployees.length > 0 ? (
+                        displayEmployees.map((emp) => (
                           <div 
                             key={emp.id} 
                             onClick={() => toggleEmployee(emp.id)}
-                            className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all border-2 ${formData.employeeIds.includes(emp.id) ? 'bg-white border-corporate-blue shadow-lg' : 'bg-white/50 border-transparent hover:bg-white hover:border-slate-200'}`}
+                            className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all border-2 ${
+                              formData.employeeIds.includes(emp.id) 
+                                ? 'bg-corporate-blue/5 border-corporate-blue shadow-lg' 
+                                : 'bg-white border-slate-200 hover:bg-slate-50 hover:border-corporate-blue/50'
+                            }`}
                           >
-                            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${formData.employeeIds.includes(emp.id) ? 'bg-corporate-blue text-white' : 'bg-slate-200 text-slate-400'}`}>
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                              formData.employeeIds.includes(emp.id) 
+                                ? 'bg-corporate-blue text-white' 
+                                : 'bg-slate-200 text-slate-400'
+                            }`}>
                               {formData.employeeIds.includes(emp.id) ? <CheckCircle2 size={20} /> : <UserIcon size={18} />}
                             </div>
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-xs font-black uppercase text-slate-900 truncate">{emp.fullName}</span>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="text-sm font-black uppercase text-slate-900 truncate">{emp.fullName}</span>
                               <span className="text-[10px] font-bold text-slate-400 truncate">{emp.username}</span>
                             </div>
                           </div>
                         ))
                       ) : (
-                        <div className="col-span-2 text-center py-8">
+                        <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
                           <UserIcon size={40} className="mx-auto text-slate-300 mb-3" />
-                          <p className="text-xs font-bold text-slate-400">No team members found matching "{modalEmployeeSearch}"</p>
+                          <p className="text-xs font-bold text-slate-400">
+                            {modalEmployeeSearch.trim().length > 0 
+                              ? `No team members found matching "${modalEmployeeSearch}"`
+                              : 'No employees available'
+                            }
+                          </p>
                         </div>
-                      )
-                    ) : editMode && modalEmployees.length > 0 ? (
-                      // In edit mode, show pre-loaded assigned employees
-                      modalEmployees.map((emp) => (
-                        <div 
-                          key={emp.id} 
-                          onClick={() => toggleEmployee(emp.id)}
-                          className={`flex items-center gap-4 p-4 rounded-2xl cursor-pointer transition-all border-2 ${formData.employeeIds.includes(emp.id) ? 'bg-white border-corporate-blue shadow-lg' : 'bg-white/50 border-transparent hover:bg-white hover:border-slate-200'}`}
-                        >
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${formData.employeeIds.includes(emp.id) ? 'bg-corporate-blue text-white' : 'bg-slate-200 text-slate-400'}`}>
-                            {formData.employeeIds.includes(emp.id) ? <CheckCircle2 size={20} /> : <UserIcon size={18} />}
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-xs font-black uppercase text-slate-900 truncate">{emp.fullName}</span>
-                            <span className="text-[10px] font-bold text-slate-400 truncate">{emp.username}</span>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      // Initial state - prompt to search
-                      <div className="col-span-2 text-center py-12">
-                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <Search size={28} className="text-slate-300" />
-                        </div>
-                        <p className="text-sm font-black text-slate-400 uppercase tracking-wider mb-2">Search Team Members</p>
-                        <p className="text-xs font-bold text-slate-400">Type at least 3 characters to find personnel</p>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
 
+                  {/* Selected Personnel Summary */}
                   {formData.employeeIds.length > 0 && (
-                    <div className="bg-corporate-blue/5 border border-corporate-blue/20 rounded-2xl p-4">
-                      <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-3">Selected Personnel:</p>
+                    <div className="bg-corporate-blue/5 border-2 border-corporate-blue/20 rounded-2xl p-4 mt-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <p className="text-xs font-black text-slate-700 uppercase tracking-widest">Selected Personnel</p>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({ ...formData, employeeIds: [] })}
+                          className="text-[10px] font-bold text-red-600 hover:text-red-700 uppercase"
+                        >
+                          Clear All
+                        </button>
+                      </div>
                       <div className="flex flex-wrap gap-2">
                         {formData.employeeIds.map(empId => {
                           const employee = modalEmployees.find(e => e.id === empId);
                           if (!employee) return null;
                           return (
-                            <div key={empId} className="flex items-center gap-2 bg-white border border-corporate-blue/30 px-3 py-2 rounded-xl">
+                            <div key={empId} className="flex items-center gap-2 bg-white border-2 border-corporate-blue/30 px-3 py-2 rounded-xl">
                               <span className="text-xs font-bold text-slate-700">{employee.fullName}</span>
                               <button
                                 type="button"
-                                onClick={() => toggleEmployee(empId)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleEmployee(empId);
+                                }}
                                 className="w-5 h-5 bg-slate-100 hover:bg-red-100 rounded-full flex items-center justify-center transition-colors"
                               >
                                 <X size={12} className="text-slate-500 hover:text-red-600" />
@@ -537,14 +586,16 @@ export default function AdminTickets() {
                       </div>
                     </div>
                   )}
-               </div>
+                </div>
+              </div>
 
-               <div className="flex gap-6 pt-6">
-                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 p-5 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase text-sm hover:bg-slate-200 transition-colors">Dismiss</button>
-                 <button type="submit" className="flex-1 p-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-sm hover:bg-corporate-blue shadow-xl transition-all hover:-translate-y-1">
-                   {editMode ? 'Update Dispatch' : 'Confirm Dispatch'}
-                 </button>
-               </div>
+              {/* Form Actions */}
+              <div className="flex gap-6 pt-8 mt-8 border-t-2 border-slate-100">
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 p-5 bg-slate-100 text-slate-600 rounded-2xl font-black uppercase text-sm hover:bg-slate-200 transition-colors">Dismiss</button>
+                <button type="submit" className="flex-1 p-5 bg-slate-900 text-white rounded-2xl font-black uppercase text-sm hover:bg-corporate-blue shadow-xl transition-all hover:-translate-y-1">
+                  {editMode ? 'Update Dispatch' : 'Confirm Dispatch'}
+                </button>
+              </div>
             </form>
           </div>
         </div>
