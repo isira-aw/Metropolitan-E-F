@@ -11,7 +11,6 @@ import {
   EmployeeDailyWorkTimeReportDTO,
   User,
 } from '@/types';
-import { downloadFile } from '@/lib/utils/format';
 import {
   Calendar,
   User as UserIcon,
@@ -23,8 +22,7 @@ import {
   ChevronRight,
   BarChart3,
   Map,
-  ExternalLink,
-  Download
+  ExternalLink
 } from 'lucide-react';
 
 export default function AdminReports() {
@@ -119,30 +117,6 @@ export default function AdminReports() {
       .map(point => `${point.latitude},${point.longitude}`)
       .join('/');
     return `https://www.google.com/maps/dir/${coords}`;
-  };
-
-  const handleDownloadReport1 = async () => {
-    if (!startDate || !endDate) return alert('Please select date range');
-    try {
-      const employeeId = selectedEmployee ? parseInt(selectedEmployee) : undefined;
-      const blob = await reportService.exportTimeTracking(startDate, endDate, employeeId);
-      const filename = `Daily_Time_Tracking_${startDate}_to_${endDate}.pdf`;
-      downloadFile(blob, filename);
-    } catch (error: any) {
-      alert('Error downloading report: ' + (error.response?.data?.message || error.message));
-    }
-  };
-
-  const handleDownloadReport2 = async () => {
-    if (!startDate || !endDate) return alert('Please select date range');
-    if (!selectedEmployee) return alert('Please select an employee');
-    try {
-      const blob = await reportService.exportOvertime(startDate, endDate, parseInt(selectedEmployee));
-      const filename = `Performance_OT_Report_${startDate}_to_${endDate}.pdf`;
-      downloadFile(blob, filename);
-    } catch (error: any) {
-      alert('Error downloading report: ' + (error.response?.data?.message || error.message));
-    }
   };
 
   if (loading) return <LoadingSpinner />;
@@ -249,27 +223,7 @@ export default function AdminReports() {
                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{formatDateLabel(startDate)} — {formatDateLabel(endDate)}</p>
                    </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  {showReport1 && (
-                    <button
-                      onClick={handleDownloadReport1}
-                      className="inline-flex items-center gap-2 px-5 py-3 bg-corporate-blue text-white rounded-2xl text-xs font-black uppercase hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
-                    >
-                      <Download size={16} />
-                      Download PDF
-                    </button>
-                  )}
-                  {showReport2 && (
-                    <button
-                      onClick={handleDownloadReport2}
-                      className="inline-flex items-center gap-2 px-5 py-3 bg-green-600 text-white rounded-2xl text-xs font-black uppercase hover:bg-green-700 transition-colors shadow-md hover:shadow-lg"
-                    >
-                      <Download size={16} />
-                      Download PDF
-                    </button>
-                  )}
-                  <button onClick={() => { setShowReport1(false); setShowReport2(false); }} className="p-3 hover:bg-white rounded-2xl transition-colors shadow-sm text-slate-400 hover:text-red-500"><X size={24} /></button>
-                </div>
+                <button onClick={() => { setShowReport1(false); setShowReport2(false); }} className="p-3 hover:bg-white rounded-2xl transition-colors shadow-sm text-slate-400 hover:text-red-500"><X size={24} /></button>
               </div>
 
               {/* Report 1 Table */}
